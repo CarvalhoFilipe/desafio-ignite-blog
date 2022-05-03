@@ -1,1 +1,60 @@
-// TODO
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.posts {
+  max-width: 720px;
+  margin: 5rem auto 0;
+
+  a {
+    display: block;
+
+    transition: filter 0.2s;
+
+    & + a {
+      padding-top: 2rem;
+      font-weight: bold;
+    }
+
+    strong {
+      display: block;
+      font-size: 1.75rem;
+      margin-top: 1rem;
+      line-height: 2rem;
+    }
+
+    p {
+      font-size: 1.125rem;
+      margin: 0.5rem auto;
+      color: var(--body);
+    }
+
+    div {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      svg {
+        display: block;
+        margin: 0 0.75rem;
+        width: 20px;
+        height: 20px;
+        color: var(--body);
+      }
+      svg:first-child {
+        margin: 0 0.5rem 0 0;
+      }
+
+      time,
+      label {
+        font-size: 0.875rem;
+        color: var(--info);
+      }
+    }
+
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }
+}
