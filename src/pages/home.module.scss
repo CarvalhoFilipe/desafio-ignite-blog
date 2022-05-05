@@ -57,4 +57,19 @@
       filter: brightness(0.8);
     }
   }
+
+  button {
+    cursor: pointer;
+    margin-top: 2rem;
+    border: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--highlight);
+    background-color: var(--background);
+    transition: color 0.2s;
+
+    &:hover {
+      color: rgba(255,87,178,0.8);
+    }
+  }
 }
