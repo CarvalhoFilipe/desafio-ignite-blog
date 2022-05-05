@@ -7,27 +7,33 @@ import { getPrismicClient } from '../services/prismic';
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import { formatDate } from '../helpers/formartDate';
-
-interface Post {
-  uid?: string;
-  first_publication_date: string | null;
-  data: {
-    title: string;
-    subtitle: string;
-    author: string;
-  };
-}
-interface PostPagination {
-  next_page: string;
-  results: Post[];
-}
-
-interface HomeProps {
-  postsPagination: PostPagination;
-}
+import { useState } from 'react';
+import { nextPageService } from '../services/nextPage';
+import { HomeProps, Post } from './interface/HomeInterface';
 
 export default function Home({ postsPagination }: HomeProps) {
-  const { results } = postsPagination;
+  const { results, next_page } = postsPagination;
+  const [posts, setPosts] = useState<Post[]>(results);
+  const [nextPage, setNextPage] = useState<string>(next_page);
+
+  const nextPost = async (url: string) => {
+    const { next_page: newNextPage, results: newResults } =
+      await nextPageService(url);
+    setNextPage(newNextPage);
+    const newPost = newResults.map(post => {
+      return {
+        uid: post.uid,
+        first_publication_date: formatDate(post.first_publication_date),
+        data: {
+          title: PrismicDom.RichText.asText(post.data.title),
+          subtitle: PrismicDom.RichText.asText(post.data.subtitle),
+          author: PrismicDom.RichText.asText(post.data.author),
+        },
+      };
+    });
+    setPosts(state => [...state, ...newPost]);
+  };
+
   return (
     <>
       <Head>
@@ -35,9 +41,9 @@ export default function Home({ postsPagination }: HomeProps) {
       </Head>
       <main className={styles.container}>
         <div className={styles.posts}>
-          {results.map(post => (
-            <Link href="/">
-              <a key={post.uid}>
+          {posts.map(post => (
+            <Link key={post.uid} href={`/post/${post.uid}`}>
+              <a>
                 <strong>{post.data.title}</strong>
                 <p>{post.data.subtitle}</p>
                 <div>
@@ -49,6 +55,11 @@ export default function Home({ postsPagination }: HomeProps) {
               </a>
             </Link>
           ))}
+          {nextPage && (
+            <button onClick={() => nextPost(nextPage)}>
+              Carregar mais posts
+            </button>
+          )}
         </div>
       </main>
     </>
@@ -58,12 +69,11 @@ export default function Home({ postsPagination }: HomeProps) {
 export const getStaticProps = async () => {
   const prismic = getPrismicClient({});
   const postsResponse = await prismic.getByType<any>('posts', {
-    pageSize: 2,
+    pageSize: 1,
   });
-
   const results = postsResponse.results.map(post => {
     return {
-      slug: post.uid,
+      uid: post.uid,
       first_publication_date: formatDate(post.first_publication_date),
       data: {
         title: PrismicDom.RichText.asText(post.data.title),
