@@ -31,28 +31,6 @@
       color: var(--body);
     }
 
-    div {
-      display: flex;
-      width: 100%;
-      align-items: center;
-      svg {
-        display: block;
-        margin: 0 0.75rem;
-        width: 20px;
-        height: 20px;
-        color: var(--body);
-      }
-      svg:first-child {
-        margin: 0 0.5rem 0 0;
-      }
-
-      time,
-      label {
-        font-size: 0.875rem;
-        color: var(--info);
-      }
-    }
-
     &:hover {
       filter: brightness(0.8);
     }
