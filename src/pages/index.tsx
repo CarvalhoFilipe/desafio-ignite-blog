@@ -2,6 +2,7 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { AiOutlineCalendar, AiOutlineUser } from 'react-icons/ai';
+import Prismic from '@prismicio/client';
 import PrismicDom from 'prismic-dom';
 import { getPrismicClient } from '../services/prismic';
 import commonStyles from '../styles/common.module.scss';
@@ -13,6 +14,7 @@ import { HomeProps, Post } from './interface/HomeInterface';
 
 export default function Home({ postsPagination }: HomeProps) {
   const { results, next_page } = postsPagination;
+  console.log(next_page);
   const [posts, setPosts] = useState<Post[]>(results);
   const [nextPage, setNextPage] = useState<string>(next_page);
 
@@ -39,18 +41,18 @@ export default function Home({ postsPagination }: HomeProps) {
       <Head>
         <title>Home</title>
       </Head>
-      <main className={styles.container}>
+      <main className={commonStyles.container}>
         <div className={styles.posts}>
           {posts.map(post => (
             <Link key={post.uid} href={`/post/${post.uid}`}>
               <a>
                 <strong>{post.data.title}</strong>
                 <p>{post.data.subtitle}</p>
-                <div>
+                <div className={commonStyles.info}>
                   <AiOutlineCalendar />
                   <time>{post.first_publication_date}</time>
                   <AiOutlineUser />
-                  <label>{post.data.author}</label>
+                  <span>{post.data.author}</span>
                 </div>
               </a>
             </Link>
@@ -66,11 +68,14 @@ export default function Home({ postsPagination }: HomeProps) {
   );
 }
 
-export const getStaticProps = async () => {
-  const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getByType<any>('posts', {
-    pageSize: 1,
-  });
+export const getStaticProps: GetStaticProps = async () => {
+  const prismic = getPrismicClient();
+  const postsResponse = await prismic.query(
+    [Prismic.predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+    }
+  );
   const results = postsResponse.results.map(post => {
     return {
       uid: post.uid,
