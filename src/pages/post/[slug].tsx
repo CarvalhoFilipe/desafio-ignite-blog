@@ -1,7 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
@@ -32,7 +31,6 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps) {
-  console.log(post);
   const router = useRouter();
 
   if (router.isFallback) {
@@ -69,20 +67,22 @@ export default function Post({ post }: PostProps) {
       </header>
 
       <article className={commonStyles.container}>
-        <h1>{RichText.asText(post.data.title)}</h1>
+        <h1>{post.data.title}</h1>
         <div className={commonStyles.info}>
           <time>
             <FiCalendar />
           </time>
-          <span>{formatDate(post.first_publication_date)}</span>
+          <span>
+            {formatDate(post.first_publication_date)}
+          </span>
           <span>
             <FiUser />
           </span>
-          <span> {RichText.asText(post.data.author)}</span>
+          <span> {post.data.author}</span>
           <time>
             <FiClock />
           </time>
-          <span> {timeEstimmed} min</span>
+          <span>{timeEstimmed} min</span>
         </div>
         {post.data.content.map(content => (
           <div key={content.heading} className={styles.posts}>
@@ -100,9 +100,9 @@ export default function Post({ post }: PostProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const prismic = getPrismicClient();
+  const prismic = getPrismicClient({});
 
-  const posts = await prismic.query(Prismic.Predicates.at('document.type', 'posts'));
+  const posts = await prismic.getByType('posts');
 
   const paths = posts.results.map(post => {
     return {
@@ -120,7 +120,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
-  const prismic = getPrismicClient();
+  const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts', String(slug), {});
   const post = {
     uid: response.uid,
